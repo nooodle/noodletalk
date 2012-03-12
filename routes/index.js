@@ -8,21 +8,18 @@ var settings = require('../settings');
 var io = require('socket.io').listen(settings.app);
 var message = {};
 
-var getMessageDateTimeString = function() {
-  var message_datetime = new Date();
-  var message_hours = message_datetime.getHours();
-  var message_mins  = message_datetime.getMinutes();
-  var message_seconds = message_datetime.getSeconds();
-  return message_datetime.toLocaleDateString() + " @ " + message_hours + ":" + message_mins + ":" + message_seconds;
-}
-
 var getMessage = function(req) {
   if(req.body) {
+    var datetime = new Date();
     message = {
       message: content.generate(req.body.message),
       gravatar: gravatar.url(req.session.email),
       font: req.session.userFont,
-      created_datetime:getMessageDateTimeString(), 
+      hours: datetime.getHours(),
+      mins: datetime.getMinutes(),
+      secs: datetime.getSeconds(),
+      raw_time: datetime.getTime(),
+      server_timezone: datetime.getTimezoneOffset() / 60,
       created: Math.round(new Date().getTime() / 1000)
     };
 
