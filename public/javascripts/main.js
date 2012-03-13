@@ -3,6 +3,27 @@ $(function() {
   var messagesUnread = 0;
   var currentNickname = 'Anonymous';
 
+  var padTimeDigit = function(digit) {
+    if(digit < 10) {
+      return '0' + digit;
+    }
+    return digit;
+  }
+
+  var buildTimeString = function( hours, mins, secs ) {
+    return padTimeDigit(hours) + ":" + padTimeDigit(mins) + ":" + padTimeDigit(secs)
+  }
+
+  var getMessageDateTimeString = function(data) {
+    var timezoneOffsetInHours = (new Date().getTimezoneOffset()/60) - data.server_timezone;
+    var messageLocale = new Date(data.raw_time).toLocaleDateString();
+    var messageHours = data.hours - timezoneOffsetInHours;
+    var messageMinutes  = data.mins;
+    var messageSeconds = data.secs;
+
+    return messageLocale + " @ " + buildTimeString(messageHours, messageMinutes, messageSeconds);
+  };
+
   var getMessageDateTimeString = function(data) {
     var timezoneOffsetInHours = (new Date().getTimezoneOffset()/60) - data.server_timezone;
     var messageLocale = new Date(data.raw_time).toLocaleDateString();
@@ -24,8 +45,7 @@ $(function() {
 
     return messageLocale + " @ " + messageHours + ":" + messageMinutes + ":" + messageSeconds;
   };
-
-  var updateMessage = function(data) {
+var updateMessage = function(data) {
     if($('li[data-created="'+ data.created +'"]').length < 1 && data.created !== undefined) {
       // Update the message
       var message = $.trim(data.message);
