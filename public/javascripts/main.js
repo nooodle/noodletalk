@@ -3,6 +3,17 @@ $(function() {
   var messagesUnread = 0;
   var currentNickname = 'Anonymous';
 
+  var padTimeDigit = function(digit) {
+    if(digit < 10) {
+      return '0' + digit;
+    }
+    return digit;
+  }
+
+  var buildTimeString = function( hours, mins, secs ) {
+    return padTimeDigit(hours) + ":" + padTimeDigit(mins) + ":" + padTimeDigit(secs)
+  }
+
   var getMessageDateTimeString = function(data) {
     var timezoneOffsetInHours = (new Date().getTimezoneOffset()/60) - data.server_timezone;
     var messageLocale = new Date(data.raw_time).toLocaleDateString();
@@ -10,19 +21,7 @@ $(function() {
     var messageMinutes  = data.mins;
     var messageSeconds = data.secs;
 
-    if(messageHours < 10) {
-      messageHours = '0' + messageHours;
-    }
-
-    if(messageMinutes < 10) {
-      messageMinutes = '0' + messageMinutes;
-    }
-
-    if(messageSeconds < 10) {
-      messageSeconds = '0' + messageSeconds;
-    }
-
-    return messageLocale + " @ " + messageHours + ":" + messageMinutes + ":" + messageSeconds;
+    return messageLocale + " @ " + buildTimeString(messageHours, messageMinutes, messageSeconds);
   };
 
   var updateMessage = function(data) {
