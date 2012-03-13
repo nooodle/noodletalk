@@ -5,6 +5,7 @@
 
 ## John, why are you yelling so much?!
 
-.0 npm install
-.1 cp settings.js-local to settings.js
+.0 `npm install`
+
+.1 `cp settings.js-local to settings.js`
 
