@@ -24,28 +24,7 @@ $(function() {
     return messageLocale + " @ " + buildTimeString(messageHours, messageMinutes, messageSeconds);
   };
 
-  var getMessageDateTimeString = function(data) {
-    var timezoneOffsetInHours = (new Date().getTimezoneOffset()/60) - data.server_timezone;
-    var messageLocale = new Date(data.raw_time).toLocaleDateString();
-    var messageHours = data.hours - timezoneOffsetInHours;
-    var messageMinutes  = data.mins;
-    var messageSeconds = data.secs;
-
-    if(messageHours < 10) {
-      messageHours = '0' + messageHours;
-    }
-
-    if(messageMinutes < 10) {
-      messageMinutes = '0' + messageMinutes;
-    }
-
-    if(messageSeconds < 10) {
-      messageSeconds = '0' + messageSeconds;
-    }
-
-    return messageLocale + " @ " + messageHours + ":" + messageMinutes + ":" + messageSeconds;
-  };
-var updateMessage = function(data) {
+  var updateMessage = function(data) {
     if($('li[data-created="'+ data.created +'"]').length < 1 && data.created !== undefined) {
       // Update the message
       var message = $.trim(data.message);
