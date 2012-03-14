@@ -11,11 +11,15 @@ var message = {};
 var getMessage = function(req) {
   if(req.body) {
     var datetime = new Date();
+    var old_nickname = req.session.nickname;
     var nickname = content.getNickName(req.body.message);
     var message = content.generate(req.body.message);
+    var is_action = false;
 
     if(nickname.length > 0) {
       req.session.nickname = nickname;
+      message = '<em>' + old_nickname + ' has changed to ' + nickname + '</em>';
+      is_action = true;
     }
 
     if(!req.session.nickname) {
@@ -27,6 +31,7 @@ var getMessage = function(req) {
 
     if(message.match(meMatch)) {
       message = '<em>' + req.session.nickname + ' ' + message.replace(meMatch, '') + '</em>';
+      is_action = true;
     }
 
     message = {
@@ -40,7 +45,8 @@ var getMessage = function(req) {
       raw_time: datetime.getTime(),
       server_timezone: datetime.getTimezoneOffset() / 60,
       created: Math.round(new Date().getTime() / 1000),
-      connected_clients: io.sockets.clients().length
+      connected_clients: io.sockets.clients().length,
+      is_action: is_action
     };
 
     return message;

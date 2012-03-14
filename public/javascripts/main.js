@@ -29,21 +29,22 @@ $(function() {
     if($('li[data-created="'+ data.created +'"]').length < 1 && data.created !== undefined) {
       // Update the message
       var message = $.trim(data.message);
-      var matchNick = message.toLowerCase().match(/\/nick \w+/);
 
       currentNickname = data.nickname;
-
       if(message.length > 0) {
-        if(matchNick) {
-          message = 'Nickname has changed to ' + data.nickname;
+        if(data.is_action) {
+          var msg = $('<li class="action" data-created="' + data.created +
+                      '"><p></p>' +
+                      '<a href="#" class="delete">delete</a></li>');
+          msg.find('p').html(message);
+        } else {
+          var msg = $('<li class="font' + data.font + '" data-created="' + data.created +
+                      '"><img><span class="nick">' + data.nickname + '</span><time>' +
+                      getMessageDateTimeString(data) + '</time><p></p>' +
+                      '<a href="#" class="delete">delete</a></li>');
+          msg.find('img').attr('src', data.gravatar);
+          msg.find('p').html(message);
         }
-
-        var msg = $('<li class="font' + data.font + '" data-created="' + data.created +
-                    '"><img><span class="nick">' + data.nickname + '</span><time>' +
-                    getMessageDateTimeString(data) + '</time><p></p>' +
-                    '<a href="#" class="delete">delete</a></li>');
-        msg.find('img').attr('src', data.gravatar);
-        msg.find('p').html(message);
         $('body ol').prepend(msg);
       }
 
