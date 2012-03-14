@@ -33,7 +33,7 @@ $(function() {
       currentNickname = data.nickname;
       if(message.length > 0) {
         if(data.is_action) {
-          var msg = $('<li class="action" data-created="' + data.created +
+          var msg = $('<li class="action font' + data.font + '" data-created="' + data.created +
                       '"><p></p><a href="#" class="delete">delete</a></li>');
           msg.find('p').html(message);
         } else {
