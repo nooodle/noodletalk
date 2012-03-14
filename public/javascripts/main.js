@@ -15,9 +15,10 @@ $(function() {
   }
 
   var getMessageDateTimeString = function(data) {
+    var serverTime = new Date( data.raw_time );
     var timezoneOffsetInHours = (new Date().getTimezoneOffset()/60) - data.server_timezone;
     var messageLocale = new Date(data.raw_time).toLocaleDateString();
-    var messageHours = data.hours - timezoneOffsetInHours;
+    var messageHours = new Date( data.raw_time - (timezoneOffsetInHours*60*60000)).getHours();
     var messageMinutes  = data.mins;
     var messageSeconds = data.secs;
 
