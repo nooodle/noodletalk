@@ -1,14 +1,7 @@
-module.exports = function(app) {
+module.exports = function(app, io, userList) {
   var message = {};
   var gravatar = require('gravatar');
   var content = require('../lib/web-remix');
-  var io = require('socket.io').listen(app);
-
-  // Only using long-polling for now because heroku hates websockets
-  io.configure(function () { 
-    io.set("transports", ["xhr-polling"]); 
-    io.set("polling duration", 10); 
-  });
 
   var getMessage = function(req) {
     if(req.body) {
@@ -19,6 +12,13 @@ module.exports = function(app) {
       var isAction = false;
 
       if(nickname.length > 0) {
+        if(oldNickname !== 'Anonymous') {
+          userList.splice(userList.indexOf(oldNickname), 1);
+        }
+        if(userList.indexOf(nickname) === -1) {
+          userList.push(nickname);
+        }
+        io.sockets.emit('userlist', userList);
         req.session.nickname = nickname;
         message = '<em>' + oldNickname + ' has changed to ' + nickname + '</em>';
         isAction = true;

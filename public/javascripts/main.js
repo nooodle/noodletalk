@@ -1,8 +1,61 @@
 $(function() {
-  var socket = io.connect(document.location.domain);
-  var messagesUnread = 0;
-  var currentNickname = 'Anonymous';
-  var logLimit = 80;
+
+  function TabComplete(){
+    var listIndex = 0;
+    var input = $('#message > form > input')[ 0 ],
+        userListIndex = -1,
+        currentCompare;
+
+    function findNext(){
+      for(var i=userListIndex + 1, l=userList.length; i<l; ++i){
+        if(userList[i].indexOf(currentCompare) === 0){
+          userListIndex = i;
+          input.value = userList[i] + ': ';
+          break;
+        }
+      }
+    } //findNext
+
+    this.reset = function(){
+      userListIndex = 0;
+      currentCompare = undefined;
+    };
+
+    input.addEventListener('keydown', function(e) {
+
+      if(e.keyCode === 9){ 
+        e.preventDefault();
+
+        if(userListIndex === -1){
+          currentCompare = input.value;
+        }
+
+        var oldIndex = userListIndex;
+        findNext();
+        if(userListIndex === oldIndex){
+          userListIndex = -1;
+          findNext();
+        }
+
+      } else {
+        userListIndex = -1;
+      }
+
+    });
+
+  }
+
+  var socket = io.connect(document.location.domain),
+      messagesUnread = 0,
+      currentNickname = 'Anonymous',
+      nickRegExp = generateNickRegExp(),
+      userList = ['Anonymous'],
+      tabComplete = new TabComplete(),
+      logLimit = 80;
+
+  function generateNickRegExp() {
+    return new RegExp("(^|\\s)" + currentNickname + "(\\s|$)");
+  }
 
   var padTimeDigit = function(digit) {
     if(digit < 10) {
@@ -30,14 +83,23 @@ $(function() {
     // Update the message
     var message = $.trim(data.message);
 
-    currentNickname = data.nickname;
+    if(currentNickname !== data.nickname){
+      currentNickname = data.nickname;
+      nickRegExp = generateNickRegExp();
+    }
     if(message.length > 0) {
       if(data.is_action) {
         var msg = $('<li class="action font' + data.font + '" data-created="' + data.created +
                     '"><p></p><a href="#" class="delete">delete</a></li>');
         msg.find('p').html(message);
       } else {
-        var msg = $('<li class="font' + data.font + '" data-created="' + data.created +
+
+        var highlightClass = "";
+        if(nickRegExp.test( message )){
+          highlightClass = " nick-highlight ";
+        }
+
+        var msg = $('<li class="font' + data.font + highlightClass + '" data-created="' + data.created +
                     '"><img><span class="nick">' + data.nickname + '</span><time>' +
                     getMessageDateTimeString(data) + '</time><p></p>' +
                     '<a href="#" class="delete">delete</a></li>');
@@ -93,7 +155,6 @@ $(function() {
     if(self.find('input').val().match(helpMatcher)) {
       $('#help').fadeIn();
       self.find('input').val('');
-
     // if this is a clear trigger, clear all messages
     } else if(self.find('input').val().match(clearMatcher)) {
       $('ol li').remove();
@@ -121,8 +182,12 @@ $(function() {
   });
 
   socket.on('connect', function () {
+    socket.on('userlist', function (data) {
+      userList = data;
+    });
     socket.on('message', function (data) {
       updateMessage(data);
     });
   });
+
 });

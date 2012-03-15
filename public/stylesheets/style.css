@@ -315,3 +315,9 @@ form.font7 input, .font7 p {
 #footer {
 
 }
+
+.nick-highlight {
+  -webkit-box-shadow: inset 2px 2px 2px rgb( 50, 50, 250 ), inset -2px -2px 2px rgb( 50, 50, 250 );
+  -moz-box-shadow: inset 2px 2px 2px rgb( 50, 50, 250 ), inset -2px -2px 2px rgb( 50, 50, 250 );
+  box-shadow: inset 2px 2px 2px rgb( 50, 50, 250 ), inset -2px -2px 2px rgb( 50, 50, 250 );
+}

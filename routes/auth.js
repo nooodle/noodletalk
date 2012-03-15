@@ -1,4 +1,4 @@
-module.exports = function(app, settings) {
+module.exports = function(app, settings, io, userList) {
   var auth = require('../lib/authenticate');
 
   // Login
@@ -12,6 +12,7 @@ module.exports = function(app, settings) {
         req.session.email = email;
         req.session.userFont = Math.floor(Math.random() * 8);
         req.session.nickname = 'Anonymous';
+        io.sockets.emit('userlist', userList);
       }
       res.redirect('back');
     });
