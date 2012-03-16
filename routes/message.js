@@ -26,7 +26,7 @@ module.exports = function(app, io, userList) {
 
       if(!req.session.nickname) {
         req.session.nickname = 'Anonymous';
-      } 
+      }
 
       // if this is a /me prepend with the nick
       var meMatch = /^(\s\/me\s)/i;
@@ -58,7 +58,7 @@ module.exports = function(app, io, userList) {
   // Add new message
   app.post("/message", function(req, res) {
     var message = getMessage(req);
-    
+
     io.sockets.emit('message', message);
     res.json(message);
   });
