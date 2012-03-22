@@ -5,7 +5,8 @@ $(function() {
       userList = ['Anonymous'],
       userCount = 0,
       logLimit = 80;
-      myPost = false;
+      myPost = false
+      windowIsActive = true;
 
   var updateMessage = function(data) {
     // Update the message
@@ -33,8 +34,15 @@ $(function() {
 
         if(nickReference) {
           nickReference = nickReference.replace(/\s/, '');
+
+          // Someone is pinging you!
           if(nickReference === $('body').data('nick') && !myPost){
             highlight = 'nick-highlight';
+
+            // Flash the favicon on pings.
+            if (windowIsActive === false) {
+              flashFavicon();
+            }
           }
         }
 
@@ -189,9 +197,40 @@ $(function() {
     if ($('#userList').css('display') !== 'none') { $('#userList').fadeOut(); }
     return false;
   }
+
+  var flashFavicon = function() {
+    // The window is active now: quit flashing!
+    var favHTML;
+    var favIcon = $('link[rel="shortcut icon"]');
+    var favURL;
+
+    if (windowIsActive === true) {
+      favURL = '/images/favicon.png';
+    } else {
+      favURL = (favIcon.attr('href') === '/images/favicon.png') ? '/images/favicon-ping.png' : '/images/favicon.png';
+    }
+    favHTML = '<link rel="shortcut icon" href="' + favURL + '">';
+
+    $(favIcon).remove();
+    $('head').append(favHTML);
+
+    if (windowIsActive === false) {
+      setTimeout(flashFavicon, 900);
+    }
+  }
   
   $('.connected').click(showUsers);
   $('.connected').mouseout(hideUsers);
   if (navigator.userAgent.match(/iPad|iPhone/)) { document.addEventListener('touchstart', hideUsers, false); }
-  
+
+  // Set active tab state. This lets us flash a favicon at the user if
+  // noodle isn't the active tab but they have new mentions.
+  $(window).hover(
+    function() { // mouseenter
+      windowIsActive = true;
+    },
+    function() { // mouseleave
+      windowIsActive = false;
+    }
+  );
 });
