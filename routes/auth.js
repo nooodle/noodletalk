@@ -11,7 +11,7 @@ module.exports = function(app, settings, io, userList) {
         });
         req.session.email = email;
         req.session.userFont = Math.floor(Math.random() * 8);
-        req.session.nickname = 'anonymous';
+        req.session.nickname = 'i_love_ie6';
         io.sockets.emit('userlist', userList);
       }
       res.redirect('back');

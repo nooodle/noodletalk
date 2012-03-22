@@ -18,11 +18,11 @@ module.exports = function(app, io, userList, recentMessages) {
         /* Right now multiple people can have the same username, so if we remove,
          * then we risk removing their nick?
         */ 
-        if(oldNickname !== 'anonymous') {
+        if(oldNickname !== 'i_love_ie6') {
           var idx = userList.indexOf(oldNickname);
           if (idx > -1) userList.splice(idx, 1);
         }
-        if(userList.indexOf(nickname) === -1 && nickname != 'anonymous') {
+        if(userList.indexOf(nickname) === -1 && nickname != 'i_love_ie6') {
           userList.unshift(nickname);
         }
         io.sockets.emit('userlist', userList);
@@ -33,11 +33,11 @@ module.exports = function(app, io, userList, recentMessages) {
       }
 
       if(!req.session.nickname) {
-        req.session.nickname = 'anonymous';
+        req.session.nickname = 'i_love_ie6';
       }
       
       // Sort this nickname to the front of the list, make sure the list is not longer than connected clients.
-      if (req.session.nickname != 'anonymous')
+      if (req.session.nickname != 'i_love_ie6')
       {
         var idx = userList.indexOf(req.session.nickname);
         if (idx === -1) {
