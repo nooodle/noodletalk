@@ -14,7 +14,7 @@ module.exports = function(app, io, userList, recentMessages) {
 
       if(nickname.length > 0) {
         if (nickname == oldNickname) return '';
-        
+
         /* Right now multiple people can have the same username, so if we remove,
          * then we risk removing their nick?
         */ 
@@ -35,7 +35,7 @@ module.exports = function(app, io, userList, recentMessages) {
       if(!req.session.nickname) {
         req.session.nickname = 'i_love_ie6';
       }
-      
+
       // Sort this nickname to the front of the list, make sure the list is not longer than connected clients.
       if (req.session.nickname != 'i_love_ie6')
       {
