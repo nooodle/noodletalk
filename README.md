@@ -33,6 +33,17 @@
 
 3. `cp settings.js-local to settings.js`
 
+## Dependencies
+
+You may need to `npm install` the following packages.
+
+* mocha
+* qs
+* formidable
+* mime
+* active-x-obfuscator
+* uglify-js
+
 ## License
 
 This program is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by Sam Hocevar. See http://sam.zoy.org/wtfpl/COPYING for more details.
