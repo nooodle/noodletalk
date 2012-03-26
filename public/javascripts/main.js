@@ -117,11 +117,15 @@ $(function() {
     document.title = 'Noodle Talk (' + messagesUnread + ')';
     
     // Version checking: if we have a mismatch of our local version and the server version force a refresh.
-    if (localVersion === undefined)
+    if (data.version)
     {
-      localVersion = data.version;
-    } else if (localVersion != data.version) {
-      hush('<img onclick="window.location.reload()" src="/images/please_refresh.gif" />', 'refresh', 500, 1000);
+      if (localVersion === undefined)
+      {
+        localVersion = data.version;
+      } else if (localVersion != data.version) {
+        hush('<img onclick="window.location.reload()" src="/images/please_refresh.gif" />', 'refresh', 500, 1000);
+        console.log('refreshing: ' + localVersion + ' != ' + data.version);
+      }
     }
   };
 
