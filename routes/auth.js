@@ -1,5 +1,6 @@
 module.exports = function(noodle, app, settings, io, userList) {
   var auth = require('../lib/authenticate');
+  var messageMaker = require('../lib/message-maker');
 
   // Login
   app.post("/login", function(req, res) {
@@ -9,6 +10,8 @@ module.exports = function(noodle, app, settings, io, userList) {
         req.session.userFont = Math.floor(Math.random() * 8);
         req.session.nickname = auth.generateRandomNick(userList);
         io.sockets.emit('userlist', userList);
+        var message = messageMaker.getMessage(noodle, req, io, userList, "joined");
+        io.sockets.emit('message', message);
       }
       res.redirect('back');
     });

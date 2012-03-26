@@ -7,6 +7,7 @@ var app = express.createServer();
 var io = require('socket.io').listen(app);
 var content = require('../lib/web-remix');
 var userList = new Array();
+var noodle = require('../package');
 
 describe('message', function() {
   beforeEach(function() {
@@ -14,7 +15,7 @@ describe('message', function() {
     var recentMessages = {};
     recentMessages.generic = [];
     recentMessages.media = [];
-    messages(app, sinon.stub(), userList, recentMessages);
+    messages(noodle, app, sinon.stub(), userList, recentMessages);
   });
   describe('.getMessage', function() {
     describe('has a request body', function() {
@@ -31,8 +32,7 @@ describe('message', function() {
               email: 'test@test.org'
             }
           };
-
-          var message = messageMaker.getMessage(req, io, userList);
+          var message = messageMaker.getMessage(noodle, req, io, userList);
 
           req.session.nickname.should.equal(newNick);
         });
@@ -46,8 +46,7 @@ describe('message', function() {
               email: 'test@test.org'
             }
           };
-
-          var message = messageMaker.getMessage(req, io, userList).message;
+          var message = messageMaker.getMessage(noodle, req, io, userList).message;
 
           message.should.equal(' <img src=\"/images/heart.png\"> ');
         });
@@ -63,7 +62,7 @@ describe('message', function() {
             }
           };
 
-          var message = messageMaker.getMessage(req, io, userList);
+          var message = messageMaker.getMessage(noodle, req, io, userList);
 
           userList.should.include('nick');
         });
@@ -81,10 +80,10 @@ describe('message', function() {
               }
             };
 
-            var message = messageMaker.getMessage(req, io, userList);
+            var message = messageMaker.getMessage(noodle, req, io, userList);
 
             req.body.message = "/nick gonzo"
-            var message = messageMaker.getMessage(req, io, userList);
+            var message = messageMaker.getMessage(noodle, req, io, userList);
 
             userList.should.include('gonzo');
             userList.should.not.include('nick');
@@ -105,7 +104,7 @@ describe('message', function() {
             }
           };
 
-          var message = messageMaker.getMessage(req, io, userList);
+          var message = messageMaker.getMessage(noodle, req, io, userList);
 
           req.session.nickname.should.match(/i_love_ie6.+/)
         });
