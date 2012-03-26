@@ -1,4 +1,5 @@
 "use strict";
+var noodle = require('./package');
 var express = require('express');
 var configurations = module.exports;
 var app = express.createServer();
@@ -20,8 +21,8 @@ io.configure(function () {
 });
 
 // routes
-require("./routes")(app);
-require("./routes/message")(app, io, userList, recentMessages);
-require("./routes/auth")(app, settings, io, userList);
+require("./routes")(noodle, app);
+require("./routes/message")(noodle, app, io, userList, recentMessages);
+require("./routes/auth")(noodle, app, settings, io, userList);
 
 app.listen(process.env.PORT || settings.options.port);

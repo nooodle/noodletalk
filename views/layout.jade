@@ -14,9 +14,12 @@ html
     script(src='/socket.io/socket.io.js')
     script(src='/javascripts/lib/tab-complete.js')
     script(src='/javascripts/lib/time-format.js')
+    script(src='/javascripts/lib/disable-scrolling.js')
     script(src='/javascripts/main.js')
 
   body(data-nick='#{session.nickname}')
+    #hush
+
     #header
       if session.email
         h1 Noodle Talk

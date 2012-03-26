@@ -1,4 +1,4 @@
-module.exports = function(app, settings, io, userList) {
+module.exports = function(noodle, app, settings, io, userList) {
   var auth = require('../lib/authenticate');
 
   // Login
