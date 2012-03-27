@@ -100,7 +100,10 @@ $(function() {
                     '" data-created="' + data.created +
                     '"><img><span class="nick">' + data.nickname + '</span><time>' +
                     getMessageDateTimeString(data) + '</time><p></p>' +
-                    '<a href="#" class="delete">x</a></li>');
+                    '<a href="#" class="delete">x</a>' + 
+                    '<a href="http://twitter.com/intent/tweet?text=' +
+                    escape('"' + message + '" - ' + data.nickname + ' ' + window.location.href) +
+                    '" class="tweet" target="_new"></a></li>');
         msg.find('img').attr('src', data.gravatar);
         msg.find('p').html(message);
         myPost = false;
