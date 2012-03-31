@@ -289,10 +289,11 @@ ol li p img {
     max-width: 100%;
 }
 
-ol li a.delete {
+ol li a.delete, #userList a.close {
     background-color: #fff;
     border-radius: 8px;
     color: #da3321;
+    cursor: pointer;
     display: block;
     font-family: Arial, sans-serif;
     font-size: 17px;
@@ -302,7 +303,7 @@ ol li a.delete {
     top: -10px;
 }
 
-ol li a.delete:hover {
+ol li a.delete:hover, #userList a.close:hover {
     background-color: #da3321;
     color: #fff;
 }
@@ -371,18 +372,38 @@ form.font7 input, .font7 {
 
 #userList {
     background-color: #8fe4f9;
-    box-shadow: #3c8da1 3px 3px 0px;
+    border-radius: 3px;
+    box-shadow: #60bdd4 1px 1px 0px;
     color: #274850;
     display: none;
     font-family: 'BebasNeueRegular', sans-serif;
     font-size: 18px;
     max-width: 80%;
-    opacity: .97;
+    opacity: .98;
     overflow: hidden;
     padding: 20px;
     position: absolute;
-    right: 270px;
-    top: -10px;
+    left: 20px;
+    top: 80px;
+    width: 35%;
+}
+
+#userList li {
+    background-color: #aaeeff;
+    border-radius: 3px;
+    height: 26px;
+    margin-top: 5px;
+    overflow: hidden;
+    padding: 3px 3px 0px 3px;
+    text-overflow: ellipsis;
+}
+
+#userList li:hover {
+    background-color: #c7f4ff;
+}
+
+#userList li img {
+    margin-right: 10px;
 }
 
 #help li {
@@ -446,6 +467,10 @@ form.font7 input, .font7 {
         margin: 10px 0px 0px 0px;
         width: 96%;
     }
+    #userList {
+        top: 130px;
+        width: 60%;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -459,11 +484,15 @@ form.font7 input, .font7 {
     #help {
         width: 270px;
     }
-
     #userList {
         left: 28px;
         top: 70px;
         width: 200px;
+    }
+    #userList {
+        left: 20px;
+        top: 130px;
+        width: 260px;
     }
 }
 
@@ -472,8 +501,8 @@ form.font7 input, .font7 {
         height: 151px;
         width: 270px;
     }
-
     #info {
         right: 0px;
     }
+
 }

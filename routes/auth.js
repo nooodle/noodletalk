@@ -9,8 +9,9 @@ module.exports = function(noodle, app, settings, io, userList) {
         req.session.email = email;
         req.session.userFont = Math.floor(Math.random() * 8);
         req.session.nickname = auth.generateRandomNick(userList);
-        io.sockets.emit('userlist', userList);
+        
         var message = messageMaker.getMessage(noodle, req, io, userList, "joined");
+        io.sockets.emit('userlist', userList);
         io.sockets.emit('message', message);
       }
       res.redirect('back');

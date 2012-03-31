@@ -36,20 +36,6 @@ describe('message', function() {
 
           req.session.nickname.should.equal(newNick);
         });
-        it('sends a emote action', function() {
-          var req = { 
-            body: { 
-              message: '<3'
-            },
-            session: {
-              nickname: "nick",
-              email: 'test@test.org'
-            }
-          };
-          var message = messageMaker.getMessage(noodle, req, io, userList).message;
-
-          message.should.equal(' <img src=\"/images/heart.png\"> ');
-        });
         it('updates the userList', function() {
           var newNick = 'nick';
           var req = { 
@@ -85,8 +71,7 @@ describe('message', function() {
             req.body.message = "/nick gonzo"
             var message = messageMaker.getMessage(noodle, req, io, userList);
 
-            userList.should.include('gonzo');
-            userList.should.not.include('nick');
+            req.session.nickname.should.equal('gonzo');
           });
         });
       });

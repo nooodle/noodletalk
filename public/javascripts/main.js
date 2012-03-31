@@ -239,33 +239,28 @@ $(function() {
     socket.tabComplete = new TabComplete(userList);
   };
   
-  var showUsers = function() {
-    if ($('#userList').css('display') === 'none') {
-      if (userList instanceof Array) {
-        $('#noodlers').text('');
-        userList.forEach(function(user) {
-            $('#noodlers').append('<li>' + user + '</li>');
-        });
-        if (userList.length < userCount) {
-          $('#noodlers').append('<li>' + (userCount-userList.length) + ' Anonymous</li>');
-        }
+  $('.connected').click(function() {
+    var noodlers = $('#noodlers');
+    if (userList instanceof Array) {
+      noodlers.html('');
+      userList.forEach(function(user) {
+        var noodleItem = $('<li><img src=""> <span></span></li>');
+
+        noodleItem.find('img').attr('src', user.avatar);
+        noodleItem.find('span').text(user.username);
+        noodlers.append(noodleItem);
+      });
+      if (userList.length < userCount) {
+        noodlers.append('<li>' + (userCount - userList.length) + ' Anonymous</li>');
       }
-      $('#userList').fadeIn();
     }
-  };
-  var hideUsers = function() {
-    if ($('#userList').css('display') !== 'none') {
-      $('#userList').fadeOut();
-    }
-    return false;
-  }
-  
-  $('.connected').click(showUsers);
-  $('.connected').mouseout(hideUsers);
-  if (navigator.userAgent.match(/iPad|iPhone/)) {
-    document.addEventListener('touchstart', hideUsers, false);
-  }
-  
+    $('#userList').fadeIn();
+  });
+
+  $('#userList a.close, form input').click(function() {
+    $('#userList').fadeOut();
+  });
+
   // Always Be Typing.
   $('input[name=message]').focus();
   $(document).keypress(function() { $('input[name=message]').focus(); });

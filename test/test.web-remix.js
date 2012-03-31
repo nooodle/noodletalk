@@ -42,7 +42,7 @@ describe('web-remix', function() {
     it('returns a heart image for an emotiHeart', function() {
       var heart = '&lt;3';
       var subject = webRemix.generate(heart);
-      subject.should.equal(' <img src="/images/heart.png"> ');
+      subject.should.equal(' <img src="/images/heart.png">');
     });
 
     it('returns video for a video link', function() {
