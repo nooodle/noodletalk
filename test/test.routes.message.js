@@ -6,9 +6,10 @@ var messageMaker = require('../lib/message-maker');
 var app = express.createServer();
 var io = require('socket.io').listen(app);
 var content = require('../lib/web-remix');
-var userList = new Array();
+var userList = { 'noodletalk': new Array() };
 var noodle = require('../package');
 var recentMessages = {};
+var channel = 'noodletalk';
 
 describe('message', function() {
   describe('.getMessage', function() {
@@ -22,13 +23,13 @@ describe('message', function() {
               message: '/nick ' + newNick
             },
             session: {
-              nickname: 'oldnick',
+              nickname: { 'noodletalk': 'oldnick' },
               email: 'test@test.org'
             }
           };
-          var message = messageMaker.getMessage(noodle, req, io, userList);
+          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
-          req.session.nickname.should.equal(newNick);
+          req.session.nickname[channel].should.equal(newNick);
         });
         it('updates the userList', function() {
           var newNick = 'nick';
@@ -37,13 +38,13 @@ describe('message', function() {
               message: '/nick ' + newNick
             },
             session: {
-              nickname: 'oldnick',
+              nickname: { 'noodletalk': 'oldnick' },
               email: 'test@test.org'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, req, io, userList);
-          userList.should.not.include('oldnick');
+          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
+          userList[channel].should.not.include('oldnick');
         });
 
         describe('nickname is not on the userList', function() {
@@ -54,17 +55,17 @@ describe('message', function() {
                 message: '/nick ' + newNick
               },
               session: {
-                nickname: 'oldnick',
+                nickname: { 'noodletalk': 'oldnick' },
                 email: 'test@test.org'
               }
             };
 
-            var message = messageMaker.getMessage(noodle, req, io, userList);
+            var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
             req.body.message = "/nick gonzo"
-            var message = messageMaker.getMessage(noodle, req, io, userList);
+            var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
-            req.session.nickname.should.equal('gonzo');
+            req.session.nickname[channel].should.equal('gonzo');
           });
         });
       });
@@ -76,14 +77,14 @@ describe('message', function() {
               message: '/nick'
             },
             session: {
-              nickname: 'test',
+              nickname: { 'noodletalk': 'test' },
               email: 'test@test.org'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, req, io, userList);
+          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
-          req.session.nickname.should.equal('test');
+          req.session.nickname[channel].should.equal('test');
           message.message.should.equal(' ');
         });
       });
@@ -95,14 +96,14 @@ describe('message', function() {
               message: 'test'
             },
             session: {
-              nickname: 'i_love_ie61212121',
+              nickname: { 'noodletalk': 'i_love_ie61212121' },
               email: 'test@test.org'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, req, io, userList);
+          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
-          req.session.nickname.should.match(/i_love_ie6.+/);
+          req.session.nickname[channel].should.match(/i_love_ie6.+/);
         });
       });
 
@@ -113,12 +114,12 @@ describe('message', function() {
               message: '/me is testing'
             },
             session: {
-              nickname: 'test',
+              nickname: { 'noodletalk': 'test' },
               email: 'test@test.org'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, req, io, userList);
+          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
 
           message.message.should.equal('<em>test is testing</em>');
         });

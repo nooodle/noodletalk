@@ -1,7 +1,7 @@
 $(function() {
-  var socket = io.connect(document.location);
+  var socket = io.connect(location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : ''));
+  var currentChannel = $('body').data('channel');
   var messagesUnread = 0;
-  var currentNickname = null;
   var userList = [];
   var userCount = 0;
   var logLimit = 80;
@@ -70,10 +70,6 @@ $(function() {
     var message = $.trim(data.message);
 
     if (message.length > 0 && $('ol li[data-created="' + data.created + '"]').length === 0) {
-      if(currentNickname !== data.nickname){
-        currentNickname = data.nickname;
-      }
-
       if (data.is_action) {
         var msg = $('<li class="action font' + data.font + '" data-created="' + data.created +
                     '"><p></p><a href="#" class="delete">x</a></li>');
@@ -114,7 +110,7 @@ $(function() {
     }
     
     messagesUnread += 1;
-    document.title = 'Noodle Talk (' + messagesUnread + ')';
+    document.title = '#' + $('body').data('channel') + ' (' + messagesUnread + ')';
     
     // Version checking: if we have a mismatch of our local version and the server version force a refresh.
     if (data.version)
@@ -124,13 +120,12 @@ $(function() {
         localVersion = data.version;
       } else if (localVersion != data.version) {
         hush('<img onclick="window.location.reload()" src="/images/please_refresh.gif" />', 'refresh', 500, 1000);
-        console.log('refreshing: ' + localVersion + ' != ' + data.version);
       }
     }
   };
 
   // if the user just landed on this page, get the recent messages
-  $.get('/recent', function(data) {
+  $.get('/about/' + $('body').data('channel') + '/recent', function(data) {
     var messages = data.messages;
     for (var i=0; i < messages.generic.length; i++) {
       updateMessage(messages.generic[i]);
@@ -156,16 +151,17 @@ $(function() {
       if (assertion) {
         var loginForm = $('#login-form');
 
-        loginForm.find('input').val(assertion);
-        $.post('/login', loginForm.serialize(), function(data) {
-          document.location.href = '/';
+        loginForm.find('input:first').val(assertion);
+        $.post('/about/' + $('body').data('channel') + '/login', loginForm.serialize(), function (data) {
+          document.location.href = '/about/' + $('body').data('channel');
         });
       }
     });
+    return false;
   });
 
   $('form input').focus(function() {
-    document.title = 'Noodle Talk';
+    document.title = '#' + $('body').data('channel');
     messagesUnread = 0;
   });
 
@@ -218,6 +214,7 @@ $(function() {
       updateMessage(data);
       updateMedia(data);
     });
+    socket.emit('join channel', currentChannel);
   });
 
   var updateUserList = function() {
