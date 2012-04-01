@@ -30,6 +30,7 @@ html
 
       div#info
         a(href='https://github.com/ednapiranha/noodletalk', target='_blank') Github
+        a(href='#', id='install-webapp') Install Webapp
         if !session.email
           a(href='#', id='login') Log in
           form(method='post', action='/about/#{channel}/login', id='login-form')

@@ -28,18 +28,18 @@ $(function() {
       }
     }
   };
-  
+
   var hush = function(content,contentID,timeToFadeIn,timeToAppear) {
     if (!hushLock)
     {
       hushLock = 1;
-      
+
       // Disable messaging.
       $('input[name=message]').attr('disabled','disabled');
-      
+
       // Disable scrolling.
       disableScroll();
-      
+
       setTimeout(function() {
         setTimeout(function()
         {
@@ -53,7 +53,7 @@ $(function() {
       },timeToFadeIn);
     }
   }
-  
+
   var unHush = function(contentID,timeToFadeOut,timeToDisappear) {
     setTimeout(function() {
       setTimeout(function()
@@ -64,7 +64,7 @@ $(function() {
       $('#'+contentID).animate({'width':0,'height':0, 'margin-left': 0, 'margin-top': 0}, timeToDisappear, function() {});
     },timeToDisappear);
   }
-  
+
   var updateMessage = function(data) {
     // Update the message
     var message = $.trim(data.message);
@@ -108,10 +108,10 @@ $(function() {
       // Add new message
       $('body #messages ol').prepend(msg);
     }
-    
+
     messagesUnread += 1;
     document.title = '#' + $('body').data('channel') + ' (' + messagesUnread + ')';
-    
+
     // Version checking: if we have a mismatch of our local version and the server version force a refresh.
     if (data.version)
     {
@@ -133,15 +133,15 @@ $(function() {
     for (var i=0; i < messages.medias.length; i++) {
       updateMedia(messages.medias[i]);
     }
-    
+
     // Update the user list
     userList = data.user_list;
-    
+
     // Update the user count
     // jcw: Adding one in this call only because we haven't counted our own connection yet.
     userCount = parseInt(data.connected_clients, 10)+1;
     $('#info .connected span').text(userCount);
-    
+
     // Keep list sane, compile tab completion, etc.
     keepListSane();
   });
@@ -173,7 +173,7 @@ $(function() {
   $('form').submit(function(ev) {
     ev.preventDefault();
     var self = $(this);
-    
+
     checkCommands(self);
 
     if(!commandIsMatched && !isSubmitting) {
@@ -247,4 +247,19 @@ $(function() {
   $('#userList a.close, form input').click(function() {
     $('#userList').fadeOut();
   });
+
+  // Hide or activate webapp install button
+  if (navigator.mozApps) {
+    navigator.mozApps.amInstalled(function(data) {
+      if (data) {
+        $('#install-webpapp').remove();
+      } else {
+        $('#install-webapp').click(function() {
+          navigator.mozApps.install('/noodletalk.webapp');
+        });
+      }
+    });
+  } else {
+    $('#install-webapp').remove();
+  }
 });
