@@ -250,15 +250,13 @@ $(function() {
 
   // Hide or activate webapp install button
   if (navigator.mozApps) {
-    navigator.mozApps.amInstalled(function(data) {
-      if (data) {
-        $('#install-webpapp').remove();
-      } else {
-        $('#install-webapp').click(function() {
-          navigator.mozApps.install('/noodletalk.webapp');
-        });
-      }
-    });
+    if (navigator.mozApps.self) {
+      $('#install-webpapp').remove();
+    } else {
+      $('#install-webapp').click(function() {
+        navigator.mozApps.install('/noodletalk.webapp');
+      });
+    }
   } else {
     $('#install-webapp').remove();
   }
