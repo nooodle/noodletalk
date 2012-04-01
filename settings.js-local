@@ -1,8 +1,9 @@
 // Module dependencies.
 module.exports = function(app, configurations, express) {
   var clientSessions = require('client-sessions');
+  var mime = require('mime');
 
-  var options = { 
+  var options = {
     domain: 'http://localhost',
     port: 3000,
     authPort: 80,
@@ -41,6 +42,10 @@ module.exports = function(app, configurations, express) {
     session: function (req, res) {
       return req.session;
     }
+  });
+
+  mime.define({
+    'application/x-web-app-manifest+json': ['webapp']
   });
 
   configurations.app = app;
