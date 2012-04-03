@@ -23,12 +23,19 @@ io.configure(function () {
 io.sockets.on('connection', function (socket) {
   socket.on('join channel', function (channel) {
     socket.join(channel);
+    socket.set('channel', channel);
+  });
+  socket.on('reply', function (data) {
+    io.sockets.in(data.channel).emit('reply', {
+      reply: data.message,
+      user: data.user
+    });
   });
 });
 
 // routes
-require("./routes")(noodle, app, userList);
 require("./routes/message")(noodle, app, io, userList, recentMessages);
+require("./routes")(noodle, app, userList);
 require("./routes/auth")(noodle, app, settings, io, userList);
 
 app.listen(settings.options.port);

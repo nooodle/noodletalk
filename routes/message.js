@@ -4,8 +4,12 @@ module.exports = function(noodle, app, io, userList, recentMessages) {
   var messageMaker = require('../lib/message-maker');
 
   // Get recent messages
-  app.get("/about/:channel/recent", function(req, res) {
+  app.get("/about/:channel/:thread?/recent", function(req, res) {
     var channel = req.params.channel;
+    var thread = req.params.thread;
+    if (thread) {
+      channel += '/' + thread;
+    }
     var channelMessages = {};
     channelMessages.generic = recentMessages.generic.filter(function (m) {
       return (m.channel === channel);
@@ -25,8 +29,12 @@ module.exports = function(noodle, app, io, userList, recentMessages) {
   });
 
   // Add new message
-  app.post("/about/:channel/message", function(req, res) {
+  app.post("/about/:channel/:thread?/message", function(req, res) {
     var channel = req.params.channel;
+    var thread = req.params.thread;
+    if (thread) {
+      channel += '/' + thread;
+    }
     var message = messageMaker.getMessage(noodle, channel, req, io, userList);
     var mediaIframeMatcher = /<iframe\s.+><\/iframe>/i;
     var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;

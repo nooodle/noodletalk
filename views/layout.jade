@@ -18,17 +18,22 @@ html
     script(src='/javascripts/lib/disable-scrolling.js')
     script(src='/javascripts/main.js')
 
-  body(data-nick=nickname, data-channel=channel)
+  body(data-nick=nickname, data-channel=channel, data-base-channel=baseChannel)
     #hush
     #header
       h1 Noodle Talk
+
       if session.email
         #message
           form(method='post', action='/about/#{channel}/message', autocomplete='off', class='font#{session.userFont}')
             input(type='text', name='message', placeholder='enter your message here or type /help for more commands')
             button(type='submit') add
+      
+      if thread
+        h2(class='thread') in response to #{thread}
 
       div#info
+        a(href='#', id='messageIndicator')
         a(href='https://github.com/ednapiranha/noodletalk', target='_blank') Github
         if !session.email
           a(href='#', id='login') Log in
@@ -37,12 +42,12 @@ html
 
     != body
 
-    #userList
+    #userList(class='listBox')
       a(class='close') x
       h2 Current Noodlers
         ul#noodlers
 
-    #help
+    #help(class='listBox')
       a(class='close') x
       h2 Noodle Talk Commands
 
@@ -74,5 +79,10 @@ html
         li
           span /leave or /part
           = ' closes the current channel window'
+
+     #messageBox(class='listBox')
+       a(class='close') x
+       h2 Personal Messages
+         ul#messageList
 
     #footer

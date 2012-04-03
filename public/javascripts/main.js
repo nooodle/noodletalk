@@ -1,6 +1,5 @@
 $(function() {
   var socket = io.connect(location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : ''));
-  var currentChannel = $('body').data('channel');
   var messagesUnread = 0;
   var userList = [];
   var userCount = 0;
@@ -10,6 +9,7 @@ $(function() {
   var mediaIframeMatcher = /<iframe\s.+><\/iframe>/i;
   var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;
   var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;
+  var slugReplacer = /[\W ]+/g;
   var isSubmitting = false;
   var localVersion = undefined;
   var hushLock = 0;
@@ -101,13 +101,33 @@ $(function() {
           }
         }
 
-        var msg = $('<li class="font' + data.font + ' ' + highlight +
+        var mine = '';
+        if (myPost) {
+          mine = 'mine';
+        }
+
+        var msg = $('<li class="font' + data.font + ' ' + highlight + ' ' + mine +
                     '" data-created="' + data.created +
                     '"><img><span class="nick">' + data.nickname + '</span><time>' +
                     getMessageDateTimeString(data) + '</time><p></p>' +
                     '<a href="#" class="delete">x</a></li>');
+        var replySlug = data.nickname.toLowerCase().replace(slugReplacer, '-') +
+                    ':' + message.toLowerCase().replace(slugReplacer, '-').replace(/\-+$/, '');
+        var reply = $('<a href="/about/' + $('body').data('base-channel') + '/' + replySlug +
+                    '" class="reply ' + replySlug.replace(/:/, '_') + '" target="_blank">reply</a>');
         msg.find('img').attr('src', data.gravatar);
-        msg.find('p').html(message);
+        msg.find('p').html(message).append(reply);
+        msg.find('p a.reply').click(function (e) {
+          $(this).text('replied');
+          socket.emit('reply', {
+            channel: $('body').data('channel'),
+            message: replySlug.replace(/:/, '_'),
+            user: {
+              nickname: data.nickname,
+              avatar: data.gravatar
+            }
+          });
+        });
         myPost = false;
       }
 
@@ -136,13 +156,15 @@ $(function() {
   // if the user just landed on this page, get the recent messages
   $.get('/about/' + $('body').data('channel') + '/recent', function(data) {
     var messages = data.messages;
-    for (var i=0; i < messages.generic.length; i++) {
-      updateMessage(messages.generic[i]);
+    if (messages) {
+      for (var i=0; i < messages.generic.length; i++) {
+        updateMessage(messages.generic[i]);
+      }
+      for (var i=0; i < messages.media.length; i++) {
+        updateMedia(messages.media[i]);
+      }
     }
-    for (var i=0; i < messages.medias.length; i++) {
-      updateMedia(messages.medias[i]);
-    }
-    
+
     // Update the user list
     userList = data.user_list;
     
@@ -168,6 +190,15 @@ $(function() {
       }
     });
     return false;
+  });
+
+  $('#messageIndicator').click(function () {
+    $(this).removeClass('on');
+    if ($('#messageBox').css('display') == 'none') {
+      $('#messageBox').fadeIn();
+    } else {
+      $('#messageBox').fadeOut();
+    }
   });
 
   $('form input').focus(function() {
@@ -224,7 +255,31 @@ $(function() {
       updateMessage(data);
       updateMedia(data);
     });
-    socket.emit('join channel', currentChannel);
+    socket.on('reply', function (data) {
+      var rep = $('ol li p a.' + data.reply);
+      rep.text('replied');
+      if (rep.closest('li').hasClass('mine')) {
+        rep.closest('li').addClass('replied');
+        if (data.user.nickname !== $('body').data('nick')) {
+          var replyItem = $('<li class="pMessage"><a href="" target="_blank">' +
+            '<img src=""> <span></span> replied to you.</a> ' +
+            '<a href="#" class="close">x</a></li>');
+          replyItem.find('img').attr('src', data.user.avatar);
+          replyItem.find('span').text(data.user.nickname);
+          replyItem.find('a:first').attr('href', '/about/' +
+            $('body').data('base-channel') + '/' + data.reply);
+          replyItem.find('a:last').click(function () {
+            replyItem.remove();
+            if ($('#messageList li').length == 0) {
+              $('#messageBox').fadeOut();
+            }
+          });
+          $('#messageList').append(replyItem);
+          $('#messageIndicator').addClass('on');
+        }
+      }
+    });
+    socket.emit('join channel', $('body').data('channel'));
   });
 
   var updateUserList = function() {
@@ -245,7 +300,7 @@ $(function() {
   };
 
   var keepListSane = function() {
-    if (userList.length > userCount) {
+    if (userList && userList.length > userCount) {
       userList.splice(userCount, userList.length - userCount);
     }
     updateUserList();
@@ -253,7 +308,8 @@ $(function() {
   };
 
   // close user list
-  $('#userList a.close, form input').click(function() {
+  $('#userList a.close, #messageBox a.close, form input').click(function() {
     $('#userList').fadeOut();
+    $('#messageBox').fadeOut();
   });
 });
