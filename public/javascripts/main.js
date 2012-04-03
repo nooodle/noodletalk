@@ -122,10 +122,7 @@ $(function() {
           socket.emit('reply', {
             channel: $('body').data('channel'),
             message: replySlug.replace(/:/, '_'),
-            user: {
-              nickname: data.nickname,
-              avatar: data.gravatar
-            }
+            nickname: $('body').data('nick')
           });
         });
         myPost = false;
@@ -157,11 +154,15 @@ $(function() {
   $.get('/about/' + $('body').data('channel') + '/recent', function(data) {
     var messages = data.messages;
     if (messages) {
-      for (var i=0; i < messages.generic.length; i++) {
-        updateMessage(messages.generic[i]);
+      if (messages.generic) {
+        for (var i=0; i < messages.generic.length; i++) {
+          updateMessage(messages.generic[i]);
+        }
       }
-      for (var i=0; i < messages.media.length; i++) {
-        updateMedia(messages.media[i]);
+      if (messages.media) {
+        for (var i=0; i < messages.media.length; i++) {
+          updateMedia(messages.media[i]);
+        }
       }
     }
 
@@ -267,8 +268,8 @@ $(function() {
           replyItem.find('img').attr('src', data.user.avatar);
           replyItem.find('span').text(data.user.nickname);
           replyItem.find('a:first').attr('href', '/about/' +
-            $('body').data('base-channel') + '/' + data.reply);
-          replyItem.find('a:last').click(function () {
+            $('body').data('base-channel') + '/' + data.reply.replace(/_/, ':'));
+          replyItem.find('a').click(function () {
             replyItem.remove();
             if ($('#messageList li').length == 0) {
               $('#messageBox').fadeOut();

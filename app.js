@@ -26,9 +26,18 @@ io.sockets.on('connection', function (socket) {
     socket.set('channel', channel);
   });
   socket.on('reply', function (data) {
+    var avatarURL = '';
+    userList[data.channel].forEach(function (u, i, a) {
+      if (u.username === data.nickname) {
+        avatarURL = u.avatar;
+      }
+    });
     io.sockets.in(data.channel).emit('reply', {
       reply: data.message,
-      user: data.user
+      user: {
+        nickname: data.nickname,
+        avatar: avatarURL
+      }
     });
   });
 });
