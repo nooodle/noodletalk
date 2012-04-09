@@ -4,14 +4,15 @@ var express = require('express');
 var configurations = module.exports;
 var app = express.createServer();
 var settings = require('./settings')(app, configurations, express);
+var redis = require("redis");
+var client = redis.createClient();
 
-var recentMessages = new Object();
-recentMessages.generic = [];
-recentMessages.medias = [];
+client.select(settings.app.set('redisnoodle'), function(errDb, res) {
+  console.log('PROD/DEV database connection status: ', res);
+});
 
-// jcw: If we don't construct our userlist as an object it won't
-// be passed by reference and won't be in-common between routes:
-var userList = new Object();
+// Always set noodletalk as an available channel and never expire it
+client.set('channels:noodletalk', 'noodletalk');
 
 var io = require('socket.io').listen(app);
 
@@ -27,8 +28,8 @@ io.sockets.on('connection', function (socket) {
 });
 
 // routes
-require("./routes")(noodle, app, userList);
-require("./routes/message")(noodle, app, io, userList, recentMessages);
-require("./routes/auth")(noodle, app, settings, io, userList);
+require("./routes")(client, noodle, app, io);
+require("./routes/message")(client, settings, app, io);
+require("./routes/auth")(client, settings, app, io);
 
 app.listen(settings.options.port);

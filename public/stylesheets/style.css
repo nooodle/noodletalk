@@ -201,6 +201,14 @@ a {
     width: 60%;
 }
 
+#messages li .media-link {
+    display: none;
+}
+
+#media .media-link {
+    display: none;
+}
+
 #media {
     float: left;
     width: 480px;
@@ -229,11 +237,12 @@ ol li {
 
 ol li span.nick {
     background-color: #8fe4f9;
-    box-shadow: #3c8da1 3px 3px 0px;
+    border-radius: 3px;
+    box-shadow: #3c8da1 1px 1px 0px;
     color: #274850;
     display: block;
     font-family: 'BebasNeueRegular', sans-serif;
-    font-size: 18px;
+    font-size: 17px;
     left: 60px;
     padding: 8px 7px 0px 7px;
     position: absolute;
@@ -245,6 +254,21 @@ ol li iframe, ol li audio, ol li video {
     display: block;
     float: left;
     margin: 10px;
+}
+
+body[data-options="mediaOff"] #messages li p iframe,
+body[data-options="mediaOff"] #messages li p img,
+body[data-options="mediaOff"] #messages li p audio,
+body[data-options="mediaOff"] #messages li p video {
+    display: none;
+}
+
+body[data-options="mediaOff"] #media {
+    display: none;
+}
+
+body[data-options="mediaOff"] #messages li .media-link {
+    display: block;
 }
 
 #messages ol li {
@@ -295,13 +319,13 @@ ol li p img {
 
 ol li a.delete, a.close {
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 6px;
     color: #da3321;
     cursor: pointer;
     display: block;
     font-family: Arial, sans-serif;
-    font-size: 17px;
-    padding: 10px 8px 3px 8px;
+    font-size: 15px;
+    padding: 8px 6px 3px 6px;
     position: absolute;
     right: 0px;
     top: -10px;
@@ -333,17 +357,17 @@ ol li p {
 
 form input , ol li {
     font-family: 'LeagueGothicRegular';
-    font-size: 22px;
+    font-size: 20px;
 }
 
 form.font2 input, .font2 {
     font-family: 'CPMono_v07Plain';
-    font-size: 20px;
+    font-size: 17px;
 }
 
 form.font3 input, .font3 {
     font-family: 'CartoGothicStdBook';
-    font-size: 20px;
+    font-size: 18px;
 }
 
 form.font4 input, .font4 {
@@ -352,7 +376,7 @@ form.font4 input, .font4 {
 
 form.font5 input, .font5 {
     font-family: 'DeutschGothicNormal';
-    font-size: 24px;
+    font-size: 22px;
 }
 
 form.font6 input, .font6 {
@@ -361,21 +385,21 @@ form.font6 input, .font6 {
 
 form.font7 input, .font7 {
     font-family: 'ComicZineOTRegular';
-    font-size: 27px;
+    font-size: 22px;
 }
 
 form.font8 input, .font8 {
     font-family: 'CamboRegular';
 }
 
-#userList, #help {
+.info-block {
     background-color: #8fe4f9;
     border-radius: 3px;
     box-shadow: #60bdd4 1px 1px 0px;
     color: #274850;
     display: none;
-    font-family: 'BebasNeueRegular', sans-serif;
-    font-size: 18px;
+    font-family: 'CPMono_v07Plain', monospace;
+    font-size: 11px;
     max-width: 80%;
     opacity: .98;
     overflow: hidden;
@@ -383,29 +407,50 @@ form.font8 input, .font8 {
     position: absolute;
     left: 20px;
     top: 80px;
-    width: 35%;
+    width: 90%;
 }
 
 #help {
     background-color: #fff286;
     box-shadow: #929328 1px 1px 0px;
     color: #706124;
-    font-size: 17px;
 }
 
-#userList li {
-    background-color: #aaeeff;
+.info-block li {
     border-radius: 3px;
-    height: 26px;
-    margin-top: 5px;
+    cursor: pointer;
+    float: left;
+    margin-right: 5px;
     overflow: hidden;
-    padding: 3px 3px 0px 3px;
+    padding: 3px 5px 3px 5px;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 280px;
 }
 
-#userList li:hover {
+#userList li, #channelList li {
+    background-color: #aaeeff;
+    padding: 3px;
+}
+
+#userList li a {
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#channelList li a, #channelList li span,
+#userList li a, #userList li span {
+    display: block;
+    font-size: 14px;
+}
+
+#userList li:hover, #channelList li:hover {
     background-color: #c7f4ff;
+}
+
+#help li:hover {
+    background-color: #fffad3;
 }
 
 #userList li img {
@@ -413,22 +458,42 @@ form.font8 input, .font8 {
 }
 
 #help li {
+    background-color: #fff7b5;
     margin-bottom: 5px;
 }
 
-#help span {
+.info-block span, .info-block img {
     color: #e35f07;
-    font-size: 21px;
+    display: block;
+    float: left;
     padding-right: 5px;
 }
 
-#help h2, #userList h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+.info-block h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
 }
 
-#userList h2 ul li {
-    font-size: 18px;
+#help li {
+    height: 45px;
+}
+
+#help li h3 {
+    clear: both;
+    display: block;
+    float: left;
+    font-size: 17px;
+    width: 100%;
+}
+
+#help li span {
+    clear: both;
+    display: block;
+    float: left;
+}
+
+#help h2 {
+    letter-spacing: -1px;
 }
 
 .nick-highlight {
@@ -445,6 +510,10 @@ form.font8 input, .font8 {
         width: 53%;
     }
 
+    body[data-options="mediaOff"] #messages {
+        width: 97%;
+    }
+
     form input {
         width: 84%;
     }
@@ -454,6 +523,10 @@ form.font8 input, .font8 {
     #messages {
         margin-right: 10px;
         width: 45%;
+    }
+
+    body[data-options="mediaOff"] #messages {
+        width: 97%;
     }
 
     form input {
@@ -469,18 +542,20 @@ form.font8 input, .font8 {
         height: 281px;
         width: 500px;
     }
+    body[data-options="mediaOff"] #messages ol li {
+        width: 97%;
+    }
     #messages ol li audio {
         width: 97%;
+    }
+    body[data-options="mediaOff"] #messages ol li audio {
+        display: none;
     }
     #media {
         display: none;
     }
     form input {
         width: 79%;
-    }
-    #userList, #help {
-        top: 130px;
-        width: 60%;
     }
 }
 
@@ -495,22 +570,21 @@ form.font8 input, .font8 {
         height: 163px;
         width: 290px;
     }
+    body[data-options="mediaOff"] #messages ol li {
+        width: 97%;
+    }
     form input {
         clear: both;
         float: left;
         margin: 10px 0px 0px 0px;
         width: 98%;
     }
-}
-
-@media only screen and (max-width: 500px) {
-    #help {
-        width: 270px;
+    .info-block li {
+        width: 260px;
     }
     #userList, #help {
         left: 20px;
         top: 130px;
-        width: 260px;
     }
 }
 
@@ -518,6 +592,12 @@ form.font8 input, .font8 {
     #messages ol li video, #messages ol li iframe {
         height: 151px;
         width: 270px;
+    }
+    body[data-options="mediaOff"] #messages ol li {
+        width: 97%;
+    }
+    .info-block li {
+        width: 260px;
     }
     #info {
         right: 0px;

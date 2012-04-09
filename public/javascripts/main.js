@@ -1,8 +1,11 @@
 $(function() {
-  var socket = io.connect(location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : ''));
+  var socket = io.connect(location.protocol + '//' + location.hostname +
+               (location.port ? ':' + location.port : ''));
   var currentChannel = $('body').data('channel');
   var messagesUnread = 0;
   var userList = [];
+  var channelList = [];
+  var myUserList = [];
   var userCount = 0;
   var logLimit = 80;
   var myPost = false;
@@ -11,8 +14,6 @@ $(function() {
   var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;
   var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;
   var isSubmitting = false;
-  var localVersion = undefined;
-  var hushLock = 0;
 
   var updateMedia = function(data) {
     // Update the media
@@ -29,51 +30,6 @@ $(function() {
     }
   };
   
-  var hush = function(content,contentID,timeToFadeIn,timeToAppear) {
-    if (!hushLock)
-    {
-      hushLock = 1;
-      
-      // Disable messaging.
-      $('input[name=message]').attr('disabled','disabled');
-      
-      // Disable scrolling.
-      disableScroll();
-      
-      setTimeout(function() {
-        setTimeout(function()
-        {
-          var newElement = jQuery(content);
-          newElement.attr('id', contentID);
-          newElement.attr('class', 'hush');
-          $('body').append(newElement);
-          $('#'+contentID).animate({
-            'width': 440,'height': 338, 'margin-left': -220, 'margin-top': -184 },
-            timeToAppear,
-            function() {}
-          );
-        },timeToAppear);
-        $('#hush').fadeIn();
-      },timeToFadeIn);
-    }
-  }
-  
-  var unHush = function(contentID,timeToFadeOut,timeToDisappear) {
-    setTimeout(function() {
-      setTimeout(function()
-      {
-        $('#hush').fadeOut();
-        hushLock = 0;
-      },timeToFadeOut);
-      $('#'+contentID).animate({
-        'width': 0,'height': 0, 
-        'margin-left': 0, 'margin-top': 0 },
-        timeToDisappear,
-        function() {}
-      );
-    },timeToDisappear);
-  }
-  
   var updateMessage = function(data) {
     // Update the message
     var message = $.trim(data.message);
@@ -86,7 +42,12 @@ $(function() {
 
         // if this is a nick change, set the nick in the dom for the user
         if (data.action_type === 'nick' && myPost) {
+          var oldNick = $('body').data('nick');
           $('body').data('nick', data.nickname.replace(/\s/, ''));
+
+          // The user list clears out every hour so let's remove the user's old name from the list
+          // if they succesfully updated
+          myUserList = userList;
           myPost = false;
         }
 
@@ -96,7 +57,8 @@ $(function() {
 
         if (nickReference) {
           nickReference = nickReference.replace(/\s/, '');
-          if (nickReference === $('body').data('nick') && !myPost) {
+          // Allow highlighting of a message even if it is to yourself
+          if (nickReference === $('body').data('nick')) {
             highlight = 'nick-highlight';
           }
         }
@@ -120,17 +82,8 @@ $(function() {
     
     messagesUnread += 1;
     document.title = '#' + $('body').data('channel') + ' (' + messagesUnread + ')';
-    
-    // Version checking: if we have a mismatch of our local version and the server version force a refresh.
-    if (data.version)
-    {
-      if (localVersion === undefined)
-      {
-        localVersion = data.version;
-      } else if (localVersion != data.version) {
-        hush('<img onclick="window.location.reload()" src="/images/please_refresh.gif" />', 'refresh', 500, 1000);
-      }
-    }
+
+    checkVersion();
   };
 
   // if the user just landed on this page, get the recent messages
@@ -139,18 +92,13 @@ $(function() {
     for (var i=0; i < messages.generic.length; i++) {
       updateMessage(messages.generic[i]);
     }
-    for (var i=0; i < messages.medias.length; i++) {
-      updateMedia(messages.medias[i]);
+    for (var i=0; i < messages.media.length; i++) {
+      updateMedia(messages.media[i]);
     }
     
     // Update the user list
     userList = data.user_list;
-    
-    // Update the user count
-    // jcw: Adding one in this call only because we haven't counted our own connection yet.
-    userCount = parseInt(data.connected_clients, 10)+1;
-    $('#info .connected span').text(userCount);
-    
+
     // Keep list sane, compile tab completion, etc.
     keepListSane();
   });
@@ -175,10 +123,6 @@ $(function() {
     messagesUnread = 0;
   });
 
-  $('#help').click(function() {
-    $(this).fadeOut();
-  });
-
   $('form').submit(function(ev) {
     ev.preventDefault();
     var self = $(this);
@@ -196,7 +140,7 @@ $(function() {
         data: self.serialize(),
         success: function(data) {
           $('form input').val('');
-          document.title = 'Noodle Talk';
+          document.title = data.channel;
           messagesUnread = 0;
           isSubmitting = false;
         },
@@ -214,46 +158,76 @@ $(function() {
   socket.on('connect', function () {
     socket.on('userlist', function (data) {
       userList = data;
+      for (var i=0; i < userList.length; i++) {
+        myUserList.push(userList[i].nickname.toLowerCase());
+      }
       keepListSane();
     });
+
     socket.on('usercount', function (data) {
       userCount = data;
       keepListSane();
     });
+
     socket.on('message', function (data) {
       updateMessage(data);
       updateMedia(data);
     });
+    
+    socket.on('channels', function(data) {
+      channelList = data;
+      updateChannelList(data);
+    });
+    
     socket.emit('join channel', currentChannel);
   });
 
   var updateUserList = function() {
     var noodlers = $('#noodlers');
-    if (userList instanceof Array) {
-      noodlers.html('');
-      userList.forEach(function(user) {
-        var noodleItem = $('<li><img src=""> <span></span></li>');
+    noodlers.html('');
+    for (var i=0; i < userList.length; i++) {
+      var noodleItem = $('<li><img src=""> <a href="#" title=""></a></li>');
 
-        noodleItem.find('img').attr('src', user.avatar);
-        noodleItem.find('span').text(user.username);
-        noodlers.append(noodleItem);
-      });
-      if (userList.length < userCount) {
-        noodlers.append('<li>' + (userCount - userList.length) + ' Anonymous</li>');
-      }
+      noodleItem.find('img').attr('src', userList[i].avatar + "?size=24");
+      noodleItem.find('a').text(userList[i].nickname);
+      noodleItem.find('a').attr('title', userList[i].nickname);
+      noodlers.append(noodleItem);
+    };
+    if (userList.length < userCount) {
+      noodlers.append('<li><img src="/images/anon.png"> <span>' +
+        (userCount - userList.length) + ' Anonymous</span></li>');
     }
+  };
+
+  var updateChannelList = function() {
+    var channels = $('#channels');
+    channels.html('');
+    for (var i=0; i < channelList.length; i++) {
+      var channelItem = $('<li><a href="" target="_blank" title=""></a></li>');
+      channelItem.find('a').attr('href', '/about/' + channelList[i].name).text(channelList[i].name +
+        ' (' + parseInt(channelList[i].userCount, 10) + ')');
+      channelItem.find('a').attr('title', channelList[i].name);
+      channels.append(channelItem);
+    };
   };
 
   var keepListSane = function() {
-    if (userList.length > userCount) {
-      userList.splice(userCount, userList.length - userCount);
-    }
     updateUserList();
-    socket.tabComplete = new TabComplete(userList);
+    socket.tabComplete = new TabComplete(myUserList);
   };
 
-  // close user list
-  $('#userList a.close, form input').click(function() {
-    $('#userList').fadeOut();
+  // close info lists
+  $('.info-block a.close').click(function() {
+    $(this).parent().fadeOut();
+  });
+
+  $('form input').click(function() {
+    $('.info-block').fadeOut();
+  });
+
+  // autofill the message with a help command
+  $('#help li').click(function() {
+    $('form input').val($(this).data('action')).focus();
+    hideAllCommands();
   });
 });

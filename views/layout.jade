@@ -14,11 +14,12 @@ html
     script(src='/socket.io/socket.io.js')
     script(src='/javascripts/lib/tab-complete.js')
     script(src='/javascripts/lib/time-format.js')
+    script(src='/javascripts/lib/version-timeout.js')
     script(src='/javascripts/lib/commands.js')
     script(src='/javascripts/lib/disable-scrolling.js')
     script(src='/javascripts/main.js')
 
-  body(data-nick=nickname, data-channel=channel)
+  body(data-nick=nickname, data-channel=channel, data-options=session.userOptions)
     #hush
     #header
       h1 Noodle Talk
@@ -37,42 +38,53 @@ html
 
     != body
 
-    #userList
+    #userList.info-block
       a(class='close') x
-      h2 Current Noodlers
-        ul#noodlers
+      h2 Active Noodlers
+      ul#noodlers
 
-    #help
+    #channelList.info-block
       a(class='close') x
-      h2 Noodle Talk Commands
+      h2 Active Channels
+      ul#channels
+
+    #help.info-block
+      a(class='close') x
+      h2 Noodle Commands
 
       ul
-        li
-          span /clear
-          = ' removes all messages from your screen'
-        li
-          span /font
-          = ' changes to a new random font'
-        li
-          span /help
-          = ' displays all available commands'
-        li
-          span /logout
-          = ' log out of the site'
-        li
-          span /nick your_nick
-          = ' changes your nickname'
-        li
-          span /me your message here
-          = ' makes an action item from your message'
-        li
-          span /users
-          = ' displays the current list of users'
-        li
-          span /join or /j #channel
-          = ' opens #channel in a new window'
-        li
-          span /leave or /part
-          = ' closes the current channel window'
+        li(data-action='/channels')
+          h3 /channels
+          span= ' lists all active channels'
+        li(data-action='/clear')
+          h3 /clear
+          span= ' removes messages from your screen'
+        li(data-action='/font')
+          h3 /font
+          span= ' changes to a new random font'
+        li(data-action='/help')
+          h3 /help or /h
+          span= ' displays all available commands'
+        li(data-action='/logout')
+          h3 /logout
+          span= ' log out of the site'
+        li(data-action='/media ')
+          h3 /media on|off
+          span= ' disable/enable media'
+        li(data-action='/nick ')
+          h3 /nick your_nick
+          span= ' changes your nickname'
+        li(data-action='/me ')
+          h3 /me your message here
+          span= ' set an action item from your message'
+        li(data-action='/users')
+          h3 /users
+          span= ' displays the current list of users'
+        li(data-action='/join ')
+          h3 /join or /j #channel
+          span= ' opens #channel in a new window'
+        li(data-action='/leave ')
+          h3 /leave or /part
+          span= ' closes the current channel window'
 
     #footer

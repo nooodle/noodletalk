@@ -4,14 +4,13 @@ function TabComplete(myUserList) {
   var input = $('#message > form > input')[ 0 ];
   var userListIndex = -1;
   var currentCompare;
-  userList = myUserList;
 
   function findNext(){
-    for (var i=userListIndex + 1, l=userList.length; i<l; ++i){
-      for (var j=0; j < userList.length; j++) {
-        if(userList[j].username.toLowerCase().indexOf(currentCompare.toLowerCase()) === 0){
+    for (var i = userListIndex + 1, l = myUserList.length; i < l; ++i) {
+      for (var j = 0; j < myUserList.length; j++) {
+        if (myUserList[j].toLowerCase().indexOf(currentCompare.toLowerCase()) > -1) {
           userListIndex = i;
-          input.value = userList[j].username.toLowerCase() + ': ';
+          input.value = myUserList[j].toLowerCase() + ': ';
           break;
         }
       }
@@ -24,18 +23,18 @@ function TabComplete(myUserList) {
   };
 
   // if a user hasn't logged in, the input doesn't exist, so we need to check for it.
-  if(input) {
+  if (input) {
     input.addEventListener('keydown', function(e) {
-      if(e.keyCode === 9 && !(e.ctrlKey || e.altKey)){ 
+      if (e.keyCode === 9 && !(e.ctrlKey || e.altKey)){
         e.preventDefault();
 
-        if(userListIndex === -1){
+        if (userListIndex === -1) {
           currentCompare = input.value.toLowerCase();
         }
 
         var oldIndex = userListIndex;
         findNext();
-        if(userListIndex === oldIndex){
+        if (userListIndex === oldIndex) {
           userListIndex = -1;
           findNext();
         }

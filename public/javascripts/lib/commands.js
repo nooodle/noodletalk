@@ -1,6 +1,6 @@
 // All functionality that doesn't require backend requests but triggers an action
 var commandIsMatched = false;
-var helpMatcher = /^(\/help)/i;
+var helpMatcher = /^((\/help)|(\/h))/i;
 var clearMatcher = /^(\/clear)/i;
 var usersMatcher = /^(\/users)/i;
 var logoutMatcher = /^(\/logout)/i;
@@ -9,6 +9,8 @@ var joinMatcher = /^(\/((join)|(j)))/i;
 var leaveMatcher = /^(\/leave|\/part)/i;
 var meMatcher = /^(\/me\s)\w?/i;
 var nickMatcher = /^(\/nick\s)\w?/i;
+var channelMatcher = /^(\/channels)/i;
+var mediaToggleMatcher = /^(\/media\s(off|on))/i;
 var slashMatcher = /^(\/)\w?/i;
 
 var commandMatched = function(matcher) {
@@ -21,7 +23,7 @@ var commandMatched = function(matcher) {
 var checkCommands = function(form) {
   // if this is a help trigger, open up the help window
   if (commandMatched(helpMatcher)) {
-    hideAllCommands('#userList');
+    hideAllCommands();
     $('#help').fadeIn();
     commandIsMatched = true;
 
@@ -32,7 +34,7 @@ var checkCommands = function(form) {
 
   // if this is a users trigger, display the user list
   } else if (commandMatched(usersMatcher)) {
-    hideAllCommands('#help');
+    hideAllCommands();
     $('#userList').fadeIn();
     commandIsMatched = true;
   
@@ -61,7 +63,28 @@ var checkCommands = function(form) {
     hideAllCommands();
     commandIsMatched = true;
     window.close();
-  
+
+  // channel listing
+  } else if (commandMatched(channelMatcher)) {
+    hideAllCommands();
+    commandIsMatched = true;
+    $('#channelList').fadeIn();
+
+  // personal options toggle
+  } else if (commandMatched(mediaToggleMatcher)) {
+    hideAllCommands();
+    commandIsMatched = true;
+    var mediaToggle = form.find('input').val().split(' ')[1];
+
+    $.post('/options', { userOptions: mediaToggle }, function(data) {
+      if (data.options === 'mediaOff') {
+        $('body').data('options', 'mediaOff');
+      } else {
+        $('body').data('options', 'mediaOn');
+      };
+      document.location.href = document.location.href;
+    });
+
   } else if (commandMatched(meMatcher)) {
     // pass
   
@@ -83,7 +106,6 @@ var hideAllCommands = function(options) {
   if (options) {
     $(options).fadeOut();
   } else {
-    $('#help').fadeOut();
-    $('#userList').fadeOut();
+    $('#help, #userList, #channelList').fadeOut();
   }
 }
