@@ -2,6 +2,8 @@ $(function() {
   var socket = io.connect(location.protocol + '//' + location.hostname +
                (location.port ? ':' + location.port : ''));
   var currentChannel = $('body').data('channel');
+  var myEmailHash = $('body').data('email-hash');
+  var initiatingChats = [];
   var messagesUnread = 0;
   var userList = [];
   var channelList = [];
@@ -37,7 +39,11 @@ $(function() {
     var message = $.trim(data.message);
 
     if (message.length > 0 && $('ol li[data-created="' + data.created + '"]').length === 0) {
-      if (data.is_action) {
+      if (data.is_client_only) {
+        var msg = $('<li class="client" data-created="' + data.created +
+                    '"><p></p><a href="#" class="delete">x</a></li>');
+        msg.find('p').html(message);
+      } else if (data.is_action) {
         var msg = $('<li class="action font' + data.font + '" data-created="' + data.created +
                     '"><p></p><a href="#" class="delete">x</a></li>');
         msg.find('p').html(message);
@@ -185,6 +191,36 @@ $(function() {
       updateChannelList(data);
     });
     
+    socket.on('private', function (data) {
+      if (data) {
+        var chatNum = initiatingChats.indexOf(data);
+        if (chatNum > -1) {
+          initiatingChats.splice(chatNum, 1);
+        } else {
+          var privateParts = data.split('-');
+          if (myEmailHash === privateParts[1] || myEmailHash === privateParts[2]) {
+            var hostNick = 'Someone';
+            for (var i=0; i < userList.length; i++) {
+              if (userList[i].emailHash === privateParts[1] || userList[i].emailHash === privateParts[2]) {
+                hostNick = userList[i].nickname;
+              }
+            }
+            // is_client_only messages are ephemeral UI-generated notifications
+            // which don't come directly from the server but are in response to
+            // something client-side.
+            var message = {
+              created: new Date().getTime(),
+              message: hostNick + ' has initiated a private chat with you. ' +
+                '<a href="/about/' + data + '" target="_' + data +
+                '">Click here to join.</a>',
+              is_client_only: true,
+            };
+            updateMessage(message);
+          }
+        }
+      }
+    });
+
     socket.emit('join channel', currentChannel);
   });
 
@@ -193,10 +229,26 @@ $(function() {
     noodlers.html('');
     for (var i=0; i < userList.length; i++) {
       var noodleItem = $('<li><img src=""> <a href="#" title=""></a></li>');
-
       noodleItem.find('img').attr('src', userList[i].avatar + "?size=24");
       noodleItem.find('a').text(userList[i].nickname);
-      noodleItem.find('a').attr('title', userList[i].nickname);
+      if (myEmailHash !== userList[i].emailHash) {
+        var hashes = [myEmailHash, userList[i].emailHash].sort().join('-');
+        noodleItem.find('a')
+          .addClass('other')
+          .attr('href', '/about/private-' + hashes)
+          .attr('target', '_' + hashes)
+          .attr('title', userList[i].nickname)
+          .click(function (e) {
+            initiatePrivateChat($(this));
+          });
+      } else {
+        noodleItem.find('a')
+          .click(function (e) {
+            e.preventDefault();
+            return false;
+          })
+          .attr('title', 'This is you');
+      }
       noodlers.append(noodleItem);
     };
     if (userList.length < userCount) {
@@ -236,4 +288,15 @@ $(function() {
     $('form input').val($(this).data('action')).focus();
     hideAllCommands();
   });
+
+  // Clicking another user in the user list initiates a private chat.
+  var initiatePrivateChat = function (l) {
+    var chatHash = $(l).attr('href').replace('/about/', '');
+    socket.emit('private', {
+      channel: currentChannel,
+      privateChannel: chatHash
+    });
+    initiatingChats.push(chatHash);
+    return true;
+  };
 });

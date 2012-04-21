@@ -19,9 +19,15 @@ module.exports = function(client, noodle, app, io) {
     if (!channel) {
       res.redirect('/about/noodletalk');
     } else {
+      if (channel.match(/^private-[a-f0-9]{32}-[a-f0-9]{32}$/i)) {
+        var privateParts = channel.split('-');
+        if (req.session.emailHash !== privateParts[1] && req.session.emailHash !== privateParts[2]) {
+            res.send(403);
+        }
+      }
       noodleRedis.setChannel(client, channel);
     }
-
+    
     if (req.session.email) {
       avatar = gravatar.url(req.session.email, {}, true)
       if (!req.session.nickname[channel]) {

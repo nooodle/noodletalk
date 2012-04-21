@@ -25,6 +25,10 @@ io.sockets.on('connection', function (socket) {
   socket.on('join channel', function (channel) {
     socket.join(channel);
   });
+
+  socket.on('private', function (data) {
+    io.sockets.in(data.channel).emit('private', data.privateChannel);
+  });
 });
 
 // routes

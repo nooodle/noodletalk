@@ -15,6 +15,7 @@ module.exports = function(client, settings, app, io) {
         req.session.nickname[channel] = auth.generateRandomNick();
 
         auth.getUserHash(req, req.session.nickname[channel], channel, function(errHash, userHash) {
+          req.session.emailHash = userHash.emailHash;
           messageMaker.getMessage(client, channel, req, io, "joined", function(err, message) {
             try {
               noodleRedis.getUserlist(client, channel, function(errUser, userList) {
@@ -41,6 +42,7 @@ module.exports = function(client, settings, app, io) {
     
     // Adios:
     req.session.email = null;
+    req.session.emailHash = null;
     req.session.userFont = null;
     req.session.nickname = null;
     req.session.pubKey = null;
