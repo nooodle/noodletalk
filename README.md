@@ -50,7 +50,7 @@
 
 6. `npm install`
 
-7. `cp settings.js-local to settings.js`
+7. `cp settings.js-local settings.js`
 
 ## Dependencies
 

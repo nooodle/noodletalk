@@ -60,6 +60,24 @@ describe('web-remix', function() {
       });
     });
 
+    it('returns embed code for a rd.io short url', function() {
+      webRemix.generate('http://rd.io/i/QVME9DdeW1GL', function(err, subject) {
+        subject.should.equal('<iframe class="rdio" width="450" height="80" ' +
+        'src="http://rd.io/i/QVME9DdeW1GL" ' +
+        'frameborder="0"></iframe><a href="http://rd.io/x/QVME9DdeW1GL" ' +
+        ' class="media-link" target="_blank">http://rd.io/x/QVME9DdeW1GL</a>');
+      });
+    });
+
+    it('returns embed code for a rdio normal url', function() {
+      webRemix.generate('http://rdio.com/x/QVME9DdeW1GL', function(err, subject) {
+        subject.should.equal('<iframe class="rdio" width="450" height="80" ' +
+        'src="http://rd.io/i/QVME9DdeW1GL" ' +
+        'frameborder="0"></iframe><a href="http://rd.io/x/QVME9DdeW1GL" ' +
+        ' class="media-link" target="_blank">http://rd.io/x/QVME9DdeW1GL</a>');
+      });
+    });
+
     it('returns image code for an img url', function() {
       webRemix.generate('http://3.bp.blogspot.com/_K_1LxF4TvhU/S7UUE6PYKiI/AAAAAAAADto/XfpdX2CIxqY/' +
         's400/Riley+the+smiling+dog.jpg', function(err, subject) {

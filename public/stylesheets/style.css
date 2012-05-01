@@ -296,6 +296,10 @@ body[data-options="mediaOff"] #messages li .media-link {
     width: 450px;
 }
 
+#media ol li .rdio {
+  height: 80px;
+}
+
 #media ol li audio {
     width: 97%;
 }
