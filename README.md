@@ -13,4 +13,8 @@
 
 4. Install node http://nodejs.org/
 
-7. `cp local.json-dist local.json`
+5. `npm install`
+
+6. `cp local.json-dist local.json`
+
+7. `node app.js`
